@@ -1,45 +1,30 @@
-package main
+package cmd
 
 import (
 	"encoding/csv"
-	"flag"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	user := flag.String("u", "kotaroooo0", "GitHub user name(required)")
-	flag.Parse()
-	gitHubScriper := NewGitHubScriper(*user)
-
-	if err := gitHubScriper.scripe(); err != nil {
-		log.Fatal(err)
-	}
+func init() {
+	rootCmd.AddCommand(crawlCmd)
 }
 
-type Scriper interface {
-	scripe() error
+var crawlCmd = &cobra.Command{
+	Use:   "crawl",
+	Short: "Collect data to add Elasticsearch",
+	Args:  cobra.ExactArgs(1),
+	RunE:  crawl,
 }
 
-// sample scriper
-type GitHubScriper struct {
-	User string
-}
-
-func NewGitHubScriper(user string) GitHubScriper {
-	return GitHubScriper{
-		User: user,
-	}
-}
-
-func (s GitHubScriper) scripe() error {
+func crawl(cmd *cobra.Command, args []string) error {
 	records := [][]string{
 		{"name", "description"},
 	}
-	doc, err := goquery.NewDocument("https://github.com/" + s.User + "?tab=repositories")
+	doc, err := goquery.NewDocument("https://github.com/" + args[0] + "?tab=repositories")
 	if err != nil {
 		return err
 	}
