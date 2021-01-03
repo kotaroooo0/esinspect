@@ -27,8 +27,9 @@ func run() error {
 	// データの格納先
 	f, err := os.Open(*path)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	defer f.Close()
 
 	// Elasticsearchクライアント
 	client, err := elastic.NewClient(
