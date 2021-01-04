@@ -2,7 +2,7 @@
 
 set -e
 
-until curl localhost:9200; do
+until curl -s localhost:9200 > /dev/null; do
   >&2 echo "Elasticsearch is unavailable - sleeping"
   sleep 3
 done
