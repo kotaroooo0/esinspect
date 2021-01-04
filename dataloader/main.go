@@ -1,39 +1,31 @@
-package cmd
+package main
 
 import (
 	"context"
 	"encoding/csv"
+	"flag"
 	"io"
+	"log"
 	"os"
 	"strconv"
 
 	"github.com/olivere/elastic"
-	"github.com/spf13/cobra"
 )
 
-var (
-	path  string
-	index string
-)
-
-func init() {
-	loadCmd.Flags().StringVarP(&path, "path", "p", "", "data source path (required)")
-	loadCmd.MarkFlagRequired("path")
-	loadCmd.Flags().StringVarP(&index, "index", "i", "", "Elasticsearch index for data insertion (required)")
-	loadCmd.MarkFlagRequired("index")
-	rootCmd.AddCommand(loadCmd)
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
 
-var loadCmd = &cobra.Command{
-	Use:   "load",
-	Short: "Loading csv file data to add Elasticsearch index",
-	Args:  cobra.NoArgs,
-	RunE:  load,
-}
+func run() error {
+	// コマンドライン引数を取得
+	path := flag.String("f", "elasticsearch/data.csv", "csv file path (required)")
+	index := flag.String("i", "sample", "target index (require)")
+	flag.Parse()
 
-func load(cmd *cobra.Command, args []string) error {
 	// データの格納先
-	f, err := os.Open(path)
+	f, err := os.Open(*path)
 	if err != nil {
 		return err
 	}
@@ -65,7 +57,7 @@ func load(cmd *cobra.Command, args []string) error {
 		for i, c := range columns {
 			doc[c] = record[i]
 		}
-		bulk.Add(elastic.NewBulkUpdateRequest().Index(index).Id(strconv.Itoa(id)).Doc(doc).DocAsUpsert(true))
+		bulk.Add(elastic.NewBulkUpdateRequest().Index(*index).Id(strconv.Itoa(id)).Doc(doc).DocAsUpsert(true))
 		id++
 	}
 	_, err = bulk.Do(context.Background())
