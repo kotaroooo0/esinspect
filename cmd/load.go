@@ -25,8 +25,8 @@ func init() {
 }
 
 var loadCmd = &cobra.Command{
-	Use:   "crawl",
-	Short: "Collect data to add Elasticsearch",
+	Use:   "load",
+	Short: "Loading csv file data to add Elasticsearch index",
 	Args:  cobra.NoArgs,
 	RunE:  load,
 }

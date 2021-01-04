@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/csv"
 	"os"
-	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
@@ -15,32 +14,26 @@ func init() {
 
 var crawlCmd = &cobra.Command{
 	Use:   "crawl",
-	Short: "Collect data to add Elasticsearch",
-	Args:  cobra.ExactArgs(1),
+	Short: "Crawling data to add Elasticsearch",
+	Args:  cobra.NoArgs,
 	RunE:  crawl,
 }
 
 func crawl(cmd *cobra.Command, args []string) error {
 	records := [][]string{
-		{"name", "description"},
+		{"entry_title", "blog_title"},
 	}
-	doc, err := goquery.NewDocument("https://github.com/" + args[0] + "?tab=repositories")
+	doc, err := goquery.NewDocument("https://hatenablog.com/")
 	if err != nil {
 		return err
 	}
 
-	ul := doc.Find("div#user-repositories-list li")
-	ul.Each(func(i int, li *goquery.Selection) {
-		name := li.Find("h3.wb-break-all > a").Text()
-		name = strings.Replace(name, " ", "", -1)
-		name = strings.Replace(name, "\n", "", -1)
-
-		description := li.Find("p").Text()
-		description = strings.Replace(description, " ", "", 10)
-		description = strings.Replace(description, "\n", "", -1)
-
+	selections := doc.Find("div.serviceTop-recommend-grid")
+	selections.Each(func(i int, selection *goquery.Selection) {
+		entryTitle := selection.Find("div.serviceTop-entry-title a").Text()
+		blogTitle := selection.Find("div.serviceTop-blog-title a").Text()
 		records = append(records, []string{
-			name, description,
+			entryTitle, blogTitle,
 		})
 	})
 

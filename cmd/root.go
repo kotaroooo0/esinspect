@@ -6,8 +6,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "esinspect",
-	Short: "esinspect is for inspecting Elasticsearch search result",
-	Long:  `TODO: write long description`,
+	Short: "esinspect is a tool for inspecting Elasticsearch search result",
 }
 
 func Execute() error {
